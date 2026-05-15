@@ -55,7 +55,7 @@ CUDA_VISIBLE_DEVICES=0 python3 scripts/run_online_parser_batch.py \
 Evaluate the parsing results:
 
 ```bash
-PYTHONNOUSERSITE=1 python3 scripts/evaluate.py \
+python3 scripts/evaluate.py \
   --parsed-root results/<timestamp>/miclog_1shot \
   --shots 1 \
   --run-name eval_miclog_1shot
