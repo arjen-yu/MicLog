@@ -1,0 +1,15 @@
+dataset_name,ground_truth_template_count,original_log_count,normalized_deduplicated_count,normalized_cluster_count
+Apache,29,51978,99,97
+BGL,320,4631261,1289,399
+HDFS,46,11167740,101,95
+HPC,74,429988,184,153
+Hadoop,236,179993,767,320
+HealthApp,156,212394,202,200
+Linux,338,23921,768,454
+Mac,626,100314,2082,1664
+OpenSSH,38,638947,5171,149
+OpenStack,48,207632,73,52
+Proxifier,11,21320,41,22
+Spark,236,16075117,382,278
+Thunderbird,1241,16601745,16289,1822
+Zookeeper,89,74273,103,90

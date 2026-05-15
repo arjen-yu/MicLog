@@ -1,0 +1,50 @@
+__pycache__/
+*.py[cod]
+*$py.class
+.ipynb_checkpoints/
+
+# Local environments and editor files
+.env
+.venv/
+venv/
+.vscode/
+.idea/
+
+# Large data and generated artifacts
+loghub-2.0/
+normalized_deduplicated/
+clustered/
+selected_balanced/
+selected_sampling_ablation/
+
+meta_incontext_data_variants/
+meta_incontext_data_variants_lite/
+meta_incontext_data_variants/*/
+meta_incontext_data_variants_lite/*/
+meta_incontext_data_variants_by_dataset/
+meta_incontext_data_variants_sampling_ablation/
+
+outputs/
+outputs_sampling_ablation/
+outputs_single_dataset_ablation/
+results/
+
+# Model/checkpoint files
+*.safetensors
+*.bin
+*.pt
+*.pth
+checkpoint-*/
+
+# Paper/build artifacts not needed for the code release
+AAAI__MicLog__Camera_ready__v2/
+TOSEM_20260429ACM_Journals_Primary_Article_Template/
+evaluation_example/
+
+# Legacy/local experiment files not needed for the clean release
+Mic_Qwen2__5.py
+MicLog_Qwen2__5.py
+cluster_summary.csv
+
+# Accidental shell artifact
+=5.5.4
