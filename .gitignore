@@ -51,3 +51,7 @@ cluster_summary.csv
 
 # Local reproduction notes
 README_repro.md
+outputs/
+*.safetensors
+*.pt
+*.pth

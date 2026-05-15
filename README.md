@@ -36,6 +36,13 @@ Large datasets, generated JSONL files, model weights, LoRA adapters, and full pr
 
 Quick Start assumes that LogHub-2.0 data, a local base model, a trained LoRA adapter, and `selected_balanced/` are already prepared.
 
+Create and activate a Conda environment with Python 3.10:
+
+```bash
+conda create -n miclog python=3.10 -y
+conda activate miclog
+```
+
 Install dependencies:
 
 ```bash
