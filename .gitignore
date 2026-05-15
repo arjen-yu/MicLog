@@ -55,3 +55,14 @@ outputs/
 *.safetensors
 *.pt
 *.pth
+
+# Ignore all training outputs by default
+outputs/*
+
+# Keep only the released Qwen3.5 LoRA adapter directory
+!outputs/qwen35_0.8b_lora_0-5-shot/
+!outputs/qwen35_0.8b_lora_0-5-shot/*
+
+# Exclude intermediate checkpoints
+outputs/qwen35_0.8b_lora_0-5-shot/checkpoint-2388/
+outputs/qwen35_0.8b_lora_0-5-shot/checkpoint-*/
