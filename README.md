@@ -10,6 +10,11 @@ This repository provides a revised replication package for [AAAI 2026] [MicLog: 
 MicLog/
 ├── miclog2/                    # Core parser package: retrieval, prompting, caching, validation, model runner
 ├── evaluation/                 # TA-Eval-Rep style evaluation metrics
+├── selected_balanced/          # Included same-dataset retrieval bank used during online parsing
+├── loghub-2.0/
+│   └── full_dataset/           # Required external dataset root; download separately from LogHub-2.0
+├── outputs/
+│   └── qwen35_0.8b_lora_0-5-shot/  # Released LoRA adapter for Qwen3.5-0.8B (includes adapter weights/config)
 ├── sampling_ablation/          # Utilities for sampling-stage ablation studies
 ├── scripts/                    # Command-line entrypoints
 │   ├── dedup_content_logs.py
@@ -30,11 +35,11 @@ MicLog/
 └── cluster_dataset_summary.csv
 ```
 
-Large datasets, generated JSONL files, model weights, LoRA adapters, and full prediction outputs are not tracked by Git.
+`selected_balanced/` and the released LoRA adapter under `outputs/qwen35_0.8b_lora_0-5-shot/` are included in this repository. LogHub-2.0 raw/full datasets, base model weights, generated JSONL files, and full prediction outputs are not tracked by Git.
 
 ## Quick Start
 
-Quick Start assumes that LogHub-2.0 data, a local base model, a trained LoRA adapter, and `selected_balanced/` are already prepared.
+Quick Start assumes that the released LoRA adapter under `outputs/qwen35_0.8b_lora_0-5-shot/` and the same-dataset retrieval bank under `selected_balanced/` are already included in this repository. You still need to download the LogHub-2.0 full datasets and the Qwen3.5-0.8B base model locally.
 
 Create and activate a Conda environment with Python 3.10:
 
@@ -48,6 +53,28 @@ Install dependencies:
 ```bash
 pip install -U -r requirements.txt
 ```
+
+Download the Qwen3.5-0.8B base model from Hugging Face and place it in a local directory, for example:
+
+```text
+https://huggingface.co/Qwen/Qwen3.5-0.8B
+```
+
+Download LogHub-2.0 from:
+
+```text
+https://github.com/logpai/loghub-2.0
+```
+
+and place the full structured datasets under:
+
+```text
+loghub-2.0/full_dataset/
+```
+
+During online parsing, MicLog retrieves up to `--shots` same-dataset demonstrations from `selected_balanced/<dataset>/` for each target log before calling the LLM.
+
+Then run online parsing with the local base model plus the included LoRA adapter:
 
 Run online parsing directly:
 
@@ -80,7 +107,7 @@ results/evaluation/<timestamp>/<run-name>/summary_average.csv
 
 ### 1. Prepare Data
 
-Download LogHub-2.0 and place the full datasets under:
+Download LogHub-2.0 from `https://github.com/logpai/loghub-2.0` and place the full datasets under:
 
 ```text
 loghub-2.0/full_dataset/
@@ -119,7 +146,7 @@ meta_incontext_data_variants/0-5-shot/train.jsonl
 
 ### 3. Train LoRA
 
-Train one adapter:
+If you want to reproduce training instead of reusing the released adapter in `outputs/qwen35_0.8b_lora_0-5-shot/`, train one adapter with:
 
 ```bash
 CUDA_VISIBLE_DEVICES=0 python3 scripts/train_qwen35_meta.py \
@@ -188,7 +215,8 @@ Metrics include GA, PA, FGA, PTA, RTA, and FTA.
 ## Notes
 
 - The scripts accept either model aliases defined in `scripts/train_qwen35_meta.py` or absolute HuggingFace-compatible model paths.
-- `outputs/`, `results/`, `loghub-2.0/`, and generated JSONL directories are intentionally ignored by Git.
+- `selected_balanced/` is versioned in this repository because online parsing depends on it as the retrieval support bank.
+- `loghub-2.0/`, generated JSONL directories, and `results/` are intentionally ignored by Git. Only the released adapter under `outputs/qwen35_0.8b_lora_0-5-shot/` is tracked inside `outputs/`.
 
 ## Citation
 
