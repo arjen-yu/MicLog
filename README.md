@@ -46,7 +46,7 @@ conda activate miclog
 Install dependencies:
 
 ```bash
-pip install -U -r requirements_qwen35.txt
+pip install -U -r requirements.txt
 ```
 
 Run online parsing directly:
