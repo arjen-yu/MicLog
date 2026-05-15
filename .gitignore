@@ -48,3 +48,6 @@ cluster_summary.csv
 
 # Accidental shell artifact
 =5.5.4
+
+# Local reproduction notes
+README_repro.md

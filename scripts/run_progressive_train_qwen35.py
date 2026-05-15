@@ -21,7 +21,7 @@ DEFAULT_OUTPUT_TEMPLATE = "outputs/qwen35_{model_label}_{method}_{variant}"
 
 def parse_args() -> tuple[argparse.Namespace, list[str]]:
     parser = argparse.ArgumentParser(
-        description="Sequentially train progressive-shot Qwen3.5 runs with train_qwen35_meta.py."
+        description="Sequentially train progressive-shot MicLog LoRA runs."
     )
     parser.add_argument("--model", default="2b", help="model alias or absolute model path")
     parser.add_argument("--data-root", default="meta_incontext_data_variants", help="root directory containing variant subfolders")
@@ -56,8 +56,8 @@ def parse_args() -> tuple[argparse.Namespace, list[str]]:
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--report-to", default="none")
     parser.add_argument("--attn-implementation", choices=["auto", "sdpa", "flash_attention_2", "eager"], default="sdpa")
-    parser.add_argument("--python", default=sys.executable or "python3", help="python executable used to launch train_qwen35_meta.py")
-    parser.add_argument("--train-script", default="train_qwen35_meta.py", help="path to the underlying training script")
+    parser.add_argument("--python", default=sys.executable or "python3", help="python executable used to launch the training script")
+    parser.add_argument("--train-script", default="scripts/train_qwen35_meta.py", help="path to the underlying training script")
     parser.add_argument("--cuda-visible-devices", default=None, help="if set, export CUDA_VISIBLE_DEVICES for all runs")
     parser.add_argument("--allow-user-site", action="store_true", help="do not force PYTHONNOUSERSITE=1")
     parser.add_argument("--skip-existing", action="store_true", help="skip a variant if adapter_model.safetensors already exists")
@@ -177,7 +177,7 @@ def quoted_command(env: dict[str, str], cmd: list[str]) -> str:
 
 def main() -> int:
     args, extra_args = parse_args()
-    project_root = Path(__file__).resolve().parent
+    project_root = Path(__file__).resolve().parent.parent
     variants = split_variants(args.variants)
 
     env = os.environ.copy()

@@ -1,1 +1,1 @@
-"""Evaluation entrypoints and adapters for MicLog2.0."""
+"""Evaluation entrypoints and adapters for MicLog."""

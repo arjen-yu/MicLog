@@ -1,1 +1,1 @@
-"""MicLog2.0 package."""
+"""MicLog package."""

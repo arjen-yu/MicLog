@@ -5,10 +5,15 @@ from __future__ import annotations
 import argparse
 import csv
 import re
+import sys
 import time
 from pathlib import Path
 
 from tqdm import tqdm
+
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
 
 from miclog2.online.cache import MultiLevelTemplateCache, PATTERN_CACHE_VERSION_CHOICES
 from miclog2.online.config import DEFAULT_INSTRUCTION, DEFAULT_SYSTEM_PROMPT

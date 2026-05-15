@@ -6,10 +6,10 @@ This directory contains standalone tooling for sampling-stage ablations. It does
 
 Build alternative support roots with the same CSV schema as `selected_balanced/`, then reuse the existing pipeline unchanged:
 
-- `generate_meta_icl_jsonl.py`
-- `run_progressive_train_qwen35.py`
-- `run_online_parser_batch.py`
-- `evaluation/MicLog2_eval.py`
+- `scripts/generate_meta_icl_jsonl.py`
+- `scripts/run_progressive_train_qwen35.py`
+- `scripts/run_online_parser_batch.py`
+- `scripts/evaluate.py`
 
 ## Implemented Strategies
 
@@ -64,7 +64,7 @@ PYTHONNOUSERSITE=1 python3 sampling_ablation/build_sampling_ablation_selected.py
 Example with `random_cluster_matched_seed42`:
 
 ```bash
-PYTHONNOUSERSITE=1 python3 generate_meta_icl_jsonl.py \
+PYTHONNOUSERSITE=1 python3 scripts/generate_meta_icl_jsonl.py \
   --input-root selected_sampling_ablation/random_cluster_matched_seed42 \
   --output-root meta_incontext_data_variants_sampling_ablation/random_cluster_matched_seed42 \
   --max-shots 5 \
@@ -76,7 +76,7 @@ PYTHONNOUSERSITE=1 python3 generate_meta_icl_jsonl.py \
 Example:
 
 ```bash
-CUDA_VISIBLE_DEVICES=1 PYTHONNOUSERSITE=1 python3 run_progressive_train_qwen35.py \
+CUDA_VISIBLE_DEVICES=1 PYTHONNOUSERSITE=1 python3 scripts/run_progressive_train_qwen35.py \
   --model 0.8b \
   --data-root meta_incontext_data_variants_sampling_ablation/random_cluster_matched_seed42 \
   --variants 0-5-shot
@@ -87,7 +87,7 @@ CUDA_VISIBLE_DEVICES=1 PYTHONNOUSERSITE=1 python3 run_progressive_train_qwen35.p
 Use the ablation support root during online parsing:
 
 ```bash
-CUDA_VISIBLE_DEVICES=0 PYTHONNOUSERSITE=1 python3 run_online_parser_batch.py \
+CUDA_VISIBLE_DEVICES=0 PYTHONNOUSERSITE=1 python3 scripts/run_online_parser_batch.py \
   --model-path /tempdisk2/yjb/Models/Qwen3.5-0.8B \
   --adapter-dir outputs/qwen35_0.8b_lora_0-5-shot \
   --shots 1 \
@@ -99,6 +99,6 @@ CUDA_VISIBLE_DEVICES=0 PYTHONNOUSERSITE=1 python3 run_online_parser_batch.py \
 Evaluation stays unchanged and still reads the parsing results directory:
 
 ```bash
-PYTHONNOUSERSITE=1 python3 evaluation/MicLog2_eval.py \
+PYTHONNOUSERSITE=1 python3 scripts/evaluate.py \
   --parsed-root results/<timestamp>/<run_name>
 ```

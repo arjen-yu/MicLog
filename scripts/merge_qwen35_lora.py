@@ -23,7 +23,7 @@ MODEL_ALIASES = {
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Merge a trained LoRA adapter into a standalone Qwen3.5 model directory."
+        description="Merge a trained MicLog LoRA adapter into a standalone model directory."
     )
     parser.add_argument("--adapter-dir", required=True, help="directory containing adapter_model.safetensors")
     parser.add_argument(

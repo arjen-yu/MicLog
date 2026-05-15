@@ -3,10 +3,15 @@
 from __future__ import annotations
 
 import argparse
+import sys
 from argparse import Namespace
 from pathlib import Path
 
-from generate_meta_icl_jsonl import DEFAULT_MAX_SHOTS, OUTPUT_ROOT, SELECTED_ROOT, generate_all, selected_dataset_dirs
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+
+from scripts.generate_meta_icl_jsonl import DEFAULT_MAX_SHOTS, OUTPUT_ROOT, SELECTED_ROOT, generate_all, selected_dataset_dirs
 
 
 DEFAULT_OUTPUT_PARENT = "meta_incontext_data_variants_by_dataset"

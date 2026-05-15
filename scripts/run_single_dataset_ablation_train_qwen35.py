@@ -28,7 +28,7 @@ def parse_args() -> tuple[argparse.Namespace, list[str]]:
     parser.add_argument("--output-root-parent", default=DEFAULT_OUTPUT_ROOT_PARENT)
     parser.add_argument("--output-template", default=DEFAULT_OUTPUT_TEMPLATE)
     parser.add_argument("--python", default=sys.executable or "python3")
-    parser.add_argument("--progressive-script", default="run_progressive_train_qwen35.py")
+    parser.add_argument("--progressive-script", default="scripts/run_progressive_train_qwen35.py")
     parser.add_argument("--cuda-visible-devices", default=None)
     parser.add_argument("--allow-user-site", action="store_true")
     parser.add_argument("--skip-existing", action="store_true")
@@ -74,7 +74,7 @@ def quoted_command(env: dict[str, str], cmd: list[str]) -> str:
 
 def main() -> int:
     args, extra_args = parse_args()
-    project_root = Path(__file__).resolve().parent
+    project_root = Path(__file__).resolve().parent.parent
     data_root_parent = (project_root / args.data_root_parent).resolve()
     output_root_parent = (project_root / args.output_root_parent).resolve()
     progressive_script = (project_root / args.progressive_script).resolve()

@@ -1,8 +1,13 @@
 #!/usr/bin/env python3
 
 import argparse
+import sys
 from datetime import datetime
 from pathlib import Path
+
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
 
 from miclog2.online import OnlineParserConfig, OnlineParserPipeline
 from miclog2.online.cache import PATTERN_CACHE_VERSION_CHOICES
@@ -22,7 +27,7 @@ def derive_output_dir(dataset: str, model_path: str, adapter_dir: str | None, sh
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Run MicLog2.0 online log parsing.")
+    parser = argparse.ArgumentParser(description="Run MicLog online log parsing.")
     parser.add_argument("--dataset", required=True, help="dataset name, e.g. Apache")
     parser.add_argument("--model-path", required=True, help="absolute or relative path to the base/merged model directory")
     parser.add_argument("--adapter-dir", default=None, help="optional LoRA adapter directory")

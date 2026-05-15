@@ -10,7 +10,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 
-ROOT = Path(__file__).resolve().parent
+ROOT = Path(__file__).resolve().parent.parent
 SELECTED_ROOT = ROOT / "selected_balanced"
 OUTPUT_ROOT = ROOT / "meta_incontext_data_variants"
 DEFAULT_MAX_SHOTS = 5

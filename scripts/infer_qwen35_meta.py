@@ -30,7 +30,7 @@ DEFAULT_INSTRUCTION = (
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Run inference with a local Qwen3.5 base model plus a trained LoRA adapter."
+        description="Run MicLog inference with a local base model plus a trained LoRA adapter."
     )
     parser.add_argument("--adapter-dir", required=True, help="directory containing adapter_model.safetensors")
     parser.add_argument(

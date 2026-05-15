@@ -1,143 +1,110 @@
-# MicLog2.0
+# MicLog
 
-MicLog2.0 is a Meta-ICL based log parsing framework. It fine-tunes a local causal language model with LoRA and performs online log parsing with retrieval, multi-level template caching, and TA-Eval-Rep metrics.
+MicLog is an LLM-based log parser built on progressive Meta In-Context Learning.
 
-## Repository Layout
+This repository provides a revised replication package for [AAAI 2026] [MicLog: Towards Accurate and Efficient LLM-based Log Parsing via Progressive Meta In-Context Learning](https://ojs.aaai.org/index.php/AAAI/article/view/37123). This version preserves the original ProgMeta-ICL strategy, but refines the implementation of other modules, resulting in higher parsing performance.
+
+## Repository Organization
 
 ```text
-miclog2/                                      Core online parser package
-evaluation/                                  TA-Eval-Rep style evaluation
-sampling_ablation/                           Sampling ablation utilities
-dedup_content_logs.py                        LogHub preprocessing
-generate_meta_icl_jsonl.py                   Meta-ICL JSONL generation
-generate_meta_icl_jsonl_by_dataset.py        Per-dataset JSONL generation
-train_qwen35_meta.py                         LoRA/QLoRA training
-run_progressive_train_qwen35.py              Batch training over shot variants
-run_online_parser.py                         Single-dataset online parsing
-run_online_parser_batch.py                   Multi-dataset online parsing
-run_sequence_dataset_parser.py               Sequential dataset parsing helper
-run_single_dataset_ablation_train_qwen35.py  Single-dataset ablation training
-infer_qwen35_meta.py                         Single-log inference
-merge_qwen35_lora.py                         Merge LoRA into base model
+MicLog/
+├── miclog2/                    # Core parser package: retrieval, prompting, caching, validation, model runner
+├── evaluation/                 # TA-Eval-Rep style evaluation metrics
+├── sampling_ablation/          # Utilities for sampling-stage ablation studies
+├── scripts/                    # Command-line entrypoints
+│   ├── dedup_content_logs.py
+│   ├── generate_meta_icl_jsonl.py
+│   ├── generate_meta_icl_jsonl_by_dataset.py
+│   ├── train_qwen35_meta.py
+│   ├── run_progressive_train_qwen35.py
+│   ├── run_online_parser.py
+│   ├── run_online_parser_batch.py
+│   ├── run_sequence_dataset_parser.py
+│   ├── run_single_dataset_ablation_train_qwen35.py
+│   ├── evaluate.py
+│   ├── infer_qwen35_meta.py
+│   └── merge_qwen35_lora.py
+├── requirements_qwen35.txt     # Python dependencies
+├── dataset_overview.csv        # Dataset overview
+├── selected_balanced_summary.csv
+└── cluster_dataset_summary.csv
 ```
 
-Large datasets, model weights, LoRA checkpoints, and full prediction outputs are intentionally not included in this repository.
+Large datasets, generated JSONL files, model weights, LoRA adapters, and full prediction outputs are not tracked by Git.
 
-## Requirements
+## Quick Start
 
-Use Python 3.10+ with CUDA-enabled PyTorch for training and GPU inference.
+Quick Start assumes that LogHub-2.0 data, a local base model, a trained LoRA adapter, and `selected_balanced/` are already prepared.
+
+Install dependencies:
 
 ```bash
-PYTHONNOUSERSITE=1 pip install -U -r requirements_qwen35.txt
+pip install -U -r requirements_qwen35.txt
 ```
 
-Check CUDA:
+Run online parsing directly:
 
 ```bash
-PYTHONNOUSERSITE=1 python3 - <<'PY'
-import torch
-print("torch", torch.__version__)
-print("cuda", torch.cuda.is_available())
-print("device_count", torch.cuda.device_count())
-PY
+CUDA_VISIBLE_DEVICES=0 python3 scripts/run_online_parser_batch.py \
+  --model-path /path/to/base-model \
+  --adapter-dir outputs/qwen35_0.8b_lora_0-5-shot \
+  --shots 1 \
+  --run-name miclog_1shot
 ```
 
-## Data and Models
+Evaluate the parsing results:
 
-Place LogHub-2.0 full datasets under:
+```bash
+PYTHONNOUSERSITE=1 python3 scripts/evaluate.py \
+  --parsed-root results/<timestamp>/miclog_1shot \
+  --shots 1 \
+  --run-name eval_miclog_1shot
+```
+
+Main outputs:
+
+```text
+results/<timestamp>/<run-name>/<dataset>/predictions.csv
+results/evaluation/<timestamp>/<run-name>/summary.csv
+results/evaluation/<timestamp>/<run-name>/summary_average.csv
+```
+
+## Full Reproduction
+
+### 1. Prepare Data
+
+Download LogHub-2.0 and place the full datasets under:
 
 ```text
 loghub-2.0/full_dataset/
 ```
 
-The scripts accept local HuggingFace model directories. The default aliases in `train_qwen35_meta.py` point to local paths such as:
-
-```text
-/tempdisk2/yjb/Models/Qwen3.5-0.8B
-```
-
-You can also pass an absolute model path directly:
+Run preprocessing:
 
 ```bash
---model /path/to/model
---model-path /path/to/model
+python3 scripts/dedup_content_logs.py --stage normalized-dedup
+python3 scripts/dedup_content_logs.py --stage cluster
+python3 scripts/dedup_content_logs.py --stage select-balanced
 ```
 
-## Quick Start
-
-Assume `meta_incontext_data_variants/0-5-shot/train.jsonl` already exists.
-
-Train a LoRA adapter:
-
-```bash
-CUDA_VISIBLE_DEVICES=0 PYTHONNOUSERSITE=1 python3 train_qwen35_meta.py \
-  --model 0.8b \
-  --train-file meta_incontext_data_variants/0-5-shot/train.jsonl \
-  --output-dir outputs/qwen35_0.8b_lora_0-5-shot \
-  --method lora \
-  --dataset-format instruction \
-  --max-length 2048 \
-  --num-train-epochs 1 \
-  --per-device-train-batch-size 2 \
-  --gradient-accumulation-steps 8
-```
-
-Run 1-shot online parsing:
-
-```bash
-CUDA_VISIBLE_DEVICES=0 PYTHONNOUSERSITE=1 python3 run_online_parser_batch.py \
-  --model-path /tempdisk2/yjb/Models/Qwen3.5-0.8B \
-  --adapter-dir outputs/qwen35_0.8b_lora_0-5-shot \
-  --shots 1 \
-  --run-name qwen35_0.8b_lora_0-5-shot_1shot
-```
-
-Evaluate an existing parsing run:
-
-```bash
-PYTHONNOUSERSITE=1 python3 evaluation/MicLog2_eval.py \
-  --parsed-root results/<timestamp>/qwen35_0.8b_lora_0-5-shot_1shot \
-  --shots 1 \
-  --run-name eval_qwen35_0.8b_lora_0-5-shot_1shot
-```
-
-Evaluation outputs are written to:
-
-```text
-results/evaluation/<timestamp>/<run-name>/
-```
-
-## Full Reproduction
-
-### 1. Preprocess LogHub Data
-
-```bash
-PYTHONNOUSERSITE=1 python3 dedup_content_logs.py --stage normalized-dedup
-PYTHONNOUSERSITE=1 python3 dedup_content_logs.py --stage cluster
-PYTHONNOUSERSITE=1 python3 dedup_content_logs.py --stage select-balanced
-```
-
-This produces:
+Generated directories:
 
 ```text
 normalized_deduplicated/
 clustered/
 selected_balanced/
-selected_balanced_summary.csv
 ```
 
-### 2. Generate Meta-ICL JSONL
-
-Generate the full 0-5 shot variant set:
+### 2. Generate Meta-ICL Training Data
 
 ```bash
-PYTHONNOUSERSITE=1 python3 generate_meta_icl_jsonl.py \
+python3 scripts/generate_meta_icl_jsonl.py \
   --max-shots 5 \
   --query-mode full \
   --output-root meta_incontext_data_variants
 ```
 
-The main training file used in the standard run is:
+The standard progressive training file is:
 
 ```text
 meta_incontext_data_variants/0-5-shot/train.jsonl
@@ -145,13 +112,13 @@ meta_incontext_data_variants/0-5-shot/train.jsonl
 
 ### 3. Train LoRA
 
-Single run:
+Train one adapter:
 
 ```bash
-CUDA_VISIBLE_DEVICES=0 PYTHONNOUSERSITE=1 python3 train_qwen35_meta.py \
-  --model 0.8b \
+CUDA_VISIBLE_DEVICES=0 python3 scripts/train_qwen35_meta.py \
+  --model /path/to/base-model \
   --train-file meta_incontext_data_variants/0-5-shot/train.jsonl \
-  --output-dir outputs/qwen35_0.8b_lora_0-5-shot \
+  --output-dir outputs/miclog_lora_0-5-shot \
   --method lora \
   --dataset-format instruction \
   --max-length 2048 \
@@ -160,13 +127,14 @@ CUDA_VISIBLE_DEVICES=0 PYTHONNOUSERSITE=1 python3 train_qwen35_meta.py \
   --gradient-accumulation-steps 8
 ```
 
-Progressive variant training:
+Train progressive variants:
 
 ```bash
-CUDA_VISIBLE_DEVICES=0 PYTHONNOUSERSITE=1 python3 run_progressive_train_qwen35.py \
-  --model 0.8b \
+CUDA_VISIBLE_DEVICES=0 python3 scripts/run_progressive_train_qwen35.py \
+  --model /path/to/base-model \
   --data-root meta_incontext_data_variants \
   --variants 0-1-shot,0-2-shot,0-3-shot,0-4-shot,0-5-shot \
+  --output-template 'outputs/miclog_{model_label}_{method}_{variant}' \
   --method lora \
   --dataset-format instruction \
   --max-length 2048 \
@@ -176,57 +144,58 @@ CUDA_VISIBLE_DEVICES=0 PYTHONNOUSERSITE=1 python3 run_progressive_train_qwen35.p
   --cuda-visible-devices 0
 ```
 
-### 4. Online Parsing
+### 4. Parse Logs
 
 Run all default datasets:
 
 ```bash
-CUDA_VISIBLE_DEVICES=0 PYTHONNOUSERSITE=1 python3 run_online_parser_batch.py \
-  --model-path /tempdisk2/yjb/Models/Qwen3.5-0.8B \
-  --adapter-dir outputs/qwen35_0.8b_lora_0-5-shot \
+CUDA_VISIBLE_DEVICES=0 python3 scripts/run_online_parser_batch.py \
+  --model-path /path/to/base-model \
+  --adapter-dir outputs/miclog_lora_0-5-shot \
   --shots 1 \
-  --run-name qwen35_0.8b_lora_0-5-shot_1shot
+  --run-name miclog_lora_0-5-shot_1shot
 ```
 
 Run selected datasets:
 
 ```bash
-CUDA_VISIBLE_DEVICES=0 PYTHONNOUSERSITE=1 python3 run_online_parser_batch.py \
+CUDA_VISIBLE_DEVICES=0 python3 scripts/run_online_parser_batch.py \
   --datasets Apache,BGL,Hadoop \
-  --model-path /tempdisk2/yjb/Models/Qwen3.5-0.8B \
-  --adapter-dir outputs/qwen35_0.8b_lora_0-5-shot \
+  --model-path /path/to/base-model \
+  --adapter-dir outputs/miclog_lora_0-5-shot \
   --shots 1 \
-  --run-name qwen35_0.8b_lora_0-5-shot_1shot_partial
+  --run-name miclog_lora_0-5-shot_1shot_partial
 ```
 
-Each dataset output contains:
-
-```text
-predictions.csv
-summary.json
-```
-
-### 5. Evaluation
-
-Evaluate existing `predictions.csv` outputs:
+### 5. Evaluate
 
 ```bash
-PYTHONNOUSERSITE=1 python3 evaluation/MicLog2_eval.py \
-  --parsed-root results/<timestamp>/qwen35_0.8b_lora_0-5-shot_1shot \
+python3 scripts/evaluate.py \
+  --parsed-root results/<timestamp>/miclog_lora_0-5-shot_1shot \
   --shots 1 \
-  --run-name eval_qwen35_0.8b_lora_0-5-shot_1shot
+  --run-name eval_miclog_lora_0-5-shot_1shot
 ```
 
-Main metrics are saved in:
-
-```text
-summary.csv
-summary_average.csv
-```
+Metrics include GA, PA, FGA, PTA, RTA, and FTA.
 
 ## Notes
 
-- `outputs/` contains LoRA adapters and is not tracked by Git.
-- `results/` contains full parsing and evaluation outputs and is not tracked by Git.
-- Large generated JSONL files are not tracked by Git; regenerate them with the scripts above.
-- Use `PYTHONNOUSERSITE=1` to avoid user-site package contamination.
+- The scripts accept either model aliases defined in `scripts/train_qwen35_meta.py` or absolute HuggingFace-compatible model paths.
+- `outputs/`, `results/`, `loghub-2.0/`, and generated JSONL directories are intentionally ignored by Git.
+
+## Citation
+
+```bibtex
+@article{yu2026miclog,
+    title={MicLog: Towards Accurate and Efficient LLM-based Log Parsing via Progressive Meta In-Context Learning},
+    volume={40},
+    url={https://ojs.aaai.org/index.php/AAAI/article/view/37123},
+    DOI={10.1609/aaai.v40i2.37123},
+    number={2},
+    journal={Proceedings of the AAAI Conference on Artificial Intelligence},
+    author={Yu, Jianbo and Li, Yixuan and Xu, Hai and Xu, Kang and Xu, Junjielong and Li, Zhijing and He, Pinjia and Wang, Wanyuan},
+    year={2026},
+    month={Mar.},
+    pages={1480-1488}
+}
+```

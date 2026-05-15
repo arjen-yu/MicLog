@@ -48,7 +48,7 @@ def timestamp() -> str:
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Evaluate MicLog2.0 with TA-Eval-Rep metrics.")
+    parser = argparse.ArgumentParser(description="Evaluate MicLog with TA-Eval-Rep metrics.")
     parser.add_argument("--datasets", default=",".join(DEFAULT_DATASETS), help="comma-separated dataset names")
     parser.add_argument("--model-path", default=None, help="absolute or relative path to the base/merged model directory")
     parser.add_argument("--adapter-dir", default=None, help="optional LoRA adapter directory")
@@ -109,7 +109,7 @@ def default_run_name(
         base = f"{Path(structured_root).name}_eval"
     else:
         base = f"{Path(model_path).name}_base"
-    return f"MicLog2_eval_{base}_{shots}shot"
+    return f"MicLog_eval_{base}_{shots}shot"
 
 
 def find_structured_result(structured_root: Path, dataset: str) -> Path:

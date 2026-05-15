@@ -28,7 +28,7 @@ DEFAULT_SYSTEM_PROMPT = "You are a log parsing assistant that extracts templates
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="LoRA / QLoRA fine-tuning for local Qwen3.5 models on JSONL SFT data."
+        description="LoRA / QLoRA fine-tuning for local causal language models on MicLog JSONL SFT data."
     )
     parser.add_argument("--model", required=True, help="model alias (0.8b/2b/4b/9b) or absolute model path")
     parser.add_argument("--train-file", required=True, help="training jsonl path")

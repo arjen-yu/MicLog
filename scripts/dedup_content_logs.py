@@ -16,7 +16,7 @@ from pathlib import Path
 from typing import Iterable
 
 
-ROOT = Path(__file__).resolve().parent
+ROOT = Path(__file__).resolve().parent.parent
 DATASET_ROOT = ROOT / "loghub-2.0" / "full_dataset"
 EXACT_DEDUP_ROOT = ROOT / "deduplicated_with_dup_count"
 NORMALIZED_DEDUP_ROOT = ROOT / "normalized_deduplicated"

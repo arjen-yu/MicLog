@@ -1,4 +1,4 @@
-"""Online parsing components for MicLog2.0."""
+"""Online parsing components for MicLog."""
 
 from .config import OnlineParserConfig
 from .pipeline import OnlineParserPipeline
