@@ -1,0 +1,12 @@
+{
+  "resolved_model_path": "/tempdisk2/yjb/Models/Qwen3.5-0.8B",
+  "train_file": "/tempdisk2/yjb/MicLog2.0/meta_incontext_data_variants/0-5-shot/train.jsonl",
+  "output_dir": "/tempdisk2/yjb/MicLog2.0/outputs/qwen35_0.8b_lora_0-5-shot",
+  "method": "lora",
+  "max_length": 2048,
+  "train_examples": 38208,
+  "eval_examples": 780,
+  "dataset_format": "instruction",
+  "system_prompt_enabled": true,
+  "system_prompt": "You are a log parsing assistant that extracts templates from logs."
+}
