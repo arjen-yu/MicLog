@@ -72,6 +72,16 @@ and place the full structured datasets under:
 loghub-2.0/full_dataset/
 ```
 
+Create the fixed content-disjoint test split used for evaluation:
+
+```bash
+python3 scripts/build_test_split.py
+```
+
+This writes `loghub-2.0/test_dataset/` by removing every full-dataset row
+whose `Content` appears in the corresponding `selected_balanced/<dataset>/`
+training bank, including duplicate occurrences.
+
 During online parsing, MicLog retrieves up to `--shots` same-dataset demonstrations from `selected_balanced/<dataset>/` for each target log before calling the LLM.
 
 Then run online parsing with the local base model plus the included LoRA adapter:
@@ -80,6 +90,7 @@ Run online parsing directly:
 
 ```bash
 CUDA_VISIBLE_DEVICES=0 python3 scripts/run_online_parser_batch.py \
+  --target-root loghub-2.0/test_dataset \
   --model-path /path/to/base-model \
   --adapter-dir outputs/qwen35_0.8b_lora_0-5-shot \
   --shots 1 \
@@ -91,6 +102,7 @@ Evaluate the parsing results:
 ```bash
 python3 scripts/evaluate.py \
   --parsed-root results/<timestamp>/miclog_1shot \
+  --input-root loghub-2.0/test_dataset \
   --shots 1 \
   --run-name eval_miclog_1shot
 ```
@@ -119,6 +131,7 @@ Run preprocessing:
 python3 scripts/dedup_content_logs.py --stage normalized-dedup
 python3 scripts/dedup_content_logs.py --stage cluster
 python3 scripts/dedup_content_logs.py --stage select-balanced
+python3 scripts/build_test_split.py
 ```
 
 Generated directories:
@@ -127,9 +140,14 @@ Generated directories:
 normalized_deduplicated/
 clustered/
 selected_balanced/
+loghub-2.0/test_dataset/
 ```
 
 ### 2. Generate Meta-ICL Training Data
+
+The training bank is `selected_balanced/`. For each dataset, the generated
+test split is formally `D_test = D_full \ D_train`, using exact `Content`
+matching rather than `LineId`.
 
 ```bash
 python3 scripts/generate_meta_icl_jsonl.py \
@@ -184,6 +202,7 @@ Run all default datasets:
 
 ```bash
 CUDA_VISIBLE_DEVICES=0 python3 scripts/run_online_parser_batch.py \
+  --target-root loghub-2.0/test_dataset \
   --model-path /path/to/base-model \
   --adapter-dir outputs/miclog_lora_0-5-shot \
   --shots 1 \
@@ -195,6 +214,7 @@ Run selected datasets:
 ```bash
 CUDA_VISIBLE_DEVICES=0 python3 scripts/run_online_parser_batch.py \
   --datasets Apache,BGL,Hadoop \
+  --target-root loghub-2.0/test_dataset \
   --model-path /path/to/base-model \
   --adapter-dir outputs/miclog_lora_0-5-shot \
   --shots 1 \
@@ -206,6 +226,7 @@ CUDA_VISIBLE_DEVICES=0 python3 scripts/run_online_parser_batch.py \
 ```bash
 python3 scripts/evaluate.py \
   --parsed-root results/<timestamp>/miclog_lora_0-5-shot_1shot \
+  --input-root loghub-2.0/test_dataset \
   --shots 1 \
   --run-name eval_miclog_lora_0-5-shot_1shot
 ```

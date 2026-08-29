@@ -62,7 +62,6 @@ class SequenceDatasetParser:
         pattern_cache_size: int,
         pattern_cache_version: str,
         exclude_same_content: bool,
-        enable_retrieval_fallback: bool,
         max_generation_attempts: int,
         max_new_tokens: int,
         temperature: float,
@@ -82,7 +81,6 @@ class SequenceDatasetParser:
         self.pattern_cache_size = pattern_cache_size
         self.pattern_cache_version = pattern_cache_version
         self.exclude_same_content = exclude_same_content
-        self.enable_retrieval_fallback = enable_retrieval_fallback
         self.max_generation_attempts = max_generation_attempts
         self.show_progress = show_progress
         self.flush_every_rows = max(flush_every_rows, 1)
@@ -240,12 +238,7 @@ class SequenceDatasetParser:
         else:
             stats.llm_invalid_count += 1
             predicted_template = ""
-            if self.enable_retrieval_fallback and demos:
-                predicted_template = demos[0].template
-                cache.update(log_text, predicted_template)
-                stats.fallback_count += 1
-            else:
-                stats.failed_count += 1
+            stats.failed_count += 1
 
         latency_ms = (time.perf_counter() - started) * 1000.0
         self._add_timings(
@@ -341,7 +334,6 @@ class SequenceDatasetParser:
                         logs=stats.total_logs,
                         cache_hits=stats.cache_hits,
                         llm_calls=stats.llm_calls,
-                        fallback=stats.fallback_count,
                         failed=stats.failed_count,
                     )
 
@@ -361,7 +353,6 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--signature-cache-size", type=int, default=10000)
     parser.add_argument("--pattern-cache-size", type=int, default=10000)
     parser.add_argument("--pattern-cache-version", choices=PATTERN_CACHE_VERSION_CHOICES, default="v2")
-    parser.add_argument("--disable-retrieval-fallback", action="store_true")
     parser.add_argument("--no-exclude-same-content", dest="exclude_same_content", action="store_false")
     parser.set_defaults(exclude_same_content=True)
     parser.add_argument("--max-generation-attempts", type=int, default=1)
@@ -394,7 +385,6 @@ def main() -> int:
         pattern_cache_size=args.pattern_cache_size,
         pattern_cache_version=args.pattern_cache_version,
         exclude_same_content=args.exclude_same_content,
-        enable_retrieval_fallback=not args.disable_retrieval_fallback,
         max_generation_attempts=args.max_generation_attempts,
         max_new_tokens=args.max_new_tokens,
         temperature=args.temperature,
@@ -422,7 +412,7 @@ def main() -> int:
                 f"[{dataset_name}/{split}] rows_written={count_rows(output_csv)} "
                 f"logs={stats.total_logs} cache_hits={stats.cache_hits} "
                 f"signature_hits={stats.signature_cache_hits} llm_calls={stats.llm_calls} "
-                f"fallback={stats.fallback_count} failed={stats.failed_count} "
+                f"failed={stats.failed_count} "
                 f"avg_latency_ms={stats.avg_latency_ms:.3f}",
                 flush=True,
             )

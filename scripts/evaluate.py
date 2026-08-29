@@ -76,7 +76,6 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--signature-cache-size", type=int, default=10000)
     parser.add_argument("--pattern-cache-size", type=int, default=10000)
     parser.add_argument("--pattern-cache-version", choices=PATTERN_CACHE_VERSION_CHOICES, default="v2")
-    parser.add_argument("--disable-retrieval-fallback", action="store_true")
     parser.add_argument("--no-exclude-same-content", dest="exclude_same_content", action="store_false")
     parser.set_defaults(exclude_same_content=True)
     parser.add_argument("--max-generation-attempts", type=int, default=1)
@@ -184,7 +183,6 @@ def main() -> int:
                 "signature_cache_size": args.signature_cache_size,
                 "pattern_cache_size": args.pattern_cache_size,
                 "pattern_cache_version": args.pattern_cache_version,
-                "enable_retrieval_fallback": not args.disable_retrieval_fallback,
                 "exclude_same_content": args.exclude_same_content,
                 "max_generation_attempts": args.max_generation_attempts,
                 "max_new_tokens": args.max_new_tokens,

@@ -68,7 +68,6 @@ class LogParser:
         signature_cache_size: int = 10000,
         pattern_cache_size: int = 10000,
         pattern_cache_version: str = "v2",
-        enable_retrieval_fallback: bool = True,
         exclude_same_content: bool = True,
         max_generation_attempts: int = 1,
         max_new_tokens: int = 128,
@@ -97,7 +96,6 @@ class LogParser:
                 f"Expected one of {PATTERN_CACHE_VERSION_CHOICES}."
             )
         self.pattern_cache_version = pattern_cache_version
-        self.enable_retrieval_fallback = enable_retrieval_fallback
         self.exclude_same_content = exclude_same_content
         self.max_generation_attempts = max_generation_attempts
         self.max_new_tokens = max_new_tokens
@@ -128,7 +126,6 @@ class LogParser:
             pattern_cache_size=self.pattern_cache_size,
             pattern_cache_version=self.pattern_cache_version,
             exclude_same_content=self.exclude_same_content,
-            enable_retrieval_fallback=self.enable_retrieval_fallback,
             max_generation_attempts=self.max_generation_attempts,
             max_new_tokens=self.max_new_tokens,
             temperature=self.temperature,

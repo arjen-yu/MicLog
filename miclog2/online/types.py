@@ -68,7 +68,6 @@ class ParseStats:
     llm_calls: int = 0
     llm_valid_count: int = 0
     llm_invalid_count: int = 0
-    fallback_count: int = 0
     failed_count: int = 0
     total_latency_ms: float = 0.0
     total_cache_lookup_ms: float = 0.0

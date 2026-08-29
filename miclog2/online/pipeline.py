@@ -47,11 +47,6 @@ class OnlineParserPipeline:
         )
         self.stats = ParseStats(dataset=config.dataset, shots=config.shots)
 
-    def _fallback_template(self, demos: list[RetrievedDemo]) -> str:
-        if not demos:
-            return ""
-        return demos[0].template
-
     def _add_timings(
         self,
         *,
@@ -158,13 +153,7 @@ class OnlineParserPipeline:
             self.stats.llm_invalid_count += 1
             predicted_template = ""
             decision_source = "failed"
-            if self.config.enable_retrieval_fallback and demos:
-                predicted_template = self._fallback_template(demos)
-                self.cache.update(record.content, predicted_template)
-                self.stats.fallback_count += 1
-                decision_source = "retrieval_fallback"
-            else:
-                self.stats.failed_count += 1
+            self.stats.failed_count += 1
 
         latency_ms = (time.perf_counter() - started) * 1000.0
         self._add_timings(
@@ -216,7 +205,6 @@ class OnlineParserPipeline:
                         cache_hits=self.stats.cache_hits,
                         signature_hits=self.stats.signature_cache_hits,
                         llm_calls=self.stats.llm_calls,
-                        fallback=self.stats.fallback_count,
                         failed=self.stats.failed_count,
                     )
 

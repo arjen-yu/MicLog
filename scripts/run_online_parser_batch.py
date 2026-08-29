@@ -79,7 +79,6 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--signature-cache-size", type=int, default=10000)
     parser.add_argument("--pattern-cache-size", type=int, default=10000)
     parser.add_argument("--pattern-cache-version", choices=PATTERN_CACHE_VERSION_CHOICES, default="v2")
-    parser.add_argument("--disable-retrieval-fallback", action="store_true")
     parser.add_argument("--no-exclude-same-content", dest="exclude_same_content", action="store_false")
     parser.set_defaults(exclude_same_content=True)
     parser.add_argument("--max-generation-attempts", type=int, default=1)
@@ -118,7 +117,6 @@ def config_for_dataset(args: argparse.Namespace, dataset: str, run_dir: Path) ->
         pattern_cache_size=args.pattern_cache_size,
         pattern_cache_version=args.pattern_cache_version,
         exclude_same_content=args.exclude_same_content,
-        enable_retrieval_fallback=not args.disable_retrieval_fallback,
         max_generation_attempts=args.max_generation_attempts,
         max_new_tokens=args.max_new_tokens,
         temperature=args.temperature,
@@ -162,7 +160,6 @@ def write_dataset_summary(path: Path, rows: list[dict[str, Any]]) -> None:
         "llm_calls",
         "llm_valid_count",
         "llm_invalid_count",
-        "fallback_count",
         "failed_count",
         "total_latency_ms",
         "avg_latency_ms",
@@ -228,7 +225,6 @@ def build_overall_summary(rows: list[dict[str, Any]], args: argparse.Namespace, 
         "total_signature_cache_hits": sum(int(row.get("signature_cache_hits", 0)) for row in rows),
         "total_pattern_cache_hits": sum(int(row.get("pattern_cache_hits", 0)) for row in rows),
         "total_llm_calls": sum(int(row.get("llm_calls", 0)) for row in rows),
-        "total_fallback_count": sum(int(row.get("fallback_count", 0)) for row in rows),
         "total_failed_count": sum(int(row.get("failed_count", 0)) for row in rows),
     }
 

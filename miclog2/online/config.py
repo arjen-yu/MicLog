@@ -30,7 +30,6 @@ class OnlineParserConfig:
     pattern_cache_size: int = 10000
     pattern_cache_version: str = "v2"
     exclude_same_content: bool = True
-    enable_retrieval_fallback: bool = True
     max_generation_attempts: int = 1
     max_new_tokens: int = 128
     temperature: float = 0.0
