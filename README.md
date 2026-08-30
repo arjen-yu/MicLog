@@ -28,8 +28,10 @@ MicLog/
 │   ├── run_single_dataset_ablation_train_qwen35.py
 │   ├── evaluate.py
 │   ├── infer_qwen35_meta.py
-│   └── merge_qwen35_lora.py
-├── requirements_qwen35.txt     # Python dependencies
+│   ├── merge_qwen35_lora.py
+│   ├── build_test_split.py
+│   └── profile_resources.py
+├── requirements.txt            # Python dependencies
 ├── dataset_overview.csv        # Dataset overview
 ├── selected_balanced_summary.csv
 └── cluster_dataset_summary.csv
@@ -232,6 +234,24 @@ python3 scripts/evaluate.py \
 ```
 
 Metrics include GA, PA, FGA, PTA, RTA, and FTA.
+
+To reproduce the representative resource measurement, run a parser command through the resource profiler:
+
+```bash
+CUDA_VISIBLE_DEVICES=0 python3 scripts/profile_resources.py \
+  --output results/resource_profile/online_resource_summary.json \
+  --gpu-index 0 \
+  -- python3 scripts/run_online_parser_batch.py \
+  --datasets Apache \
+  --max-target-logs 2000 \
+  --target-root loghub-2.0/test_dataset \
+  --model-path /path/to/base-model \
+  --adapter-dir outputs/qwen35_0.8b_lora_0-5-shot \
+  --shots 1 \
+  --run-name miclog_resource_profile
+```
+
+The profiler records elapsed time, peak process-tree RSS, and NVIDIA GPU memory, utilization, and power statistics.
 
 ## Notes
 

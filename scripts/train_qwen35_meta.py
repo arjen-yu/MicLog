@@ -98,7 +98,7 @@ def ensure_dependencies() -> dict[str, Any]:
     except Exception as exc:
         raise SystemExit(
             "Missing fine-tuning dependencies. Install them first, for example:\n"
-            "  PYTHONNOUSERSITE=1 pip install -U -r requirements_qwen35.txt\n"
+            "  PYTHONNOUSERSITE=1 pip install -U -r requirements.txt\n"
             "or\n"
             "  PYTHONNOUSERSITE=1 pip install -U \"torch>=2.4\" \"accelerate>=1.8.1\" \"datasets>=2.19\" \"peft>=0.19.0\" \"bitsandbytes>=0.43.0\" \"tokenizers>=0.22.0\" \"safetensors>=0.5.3\" \"sympy>=1.13\" \"mpmath>=1.3.0\" \"transformers>=4.53\"\n"
             f"Original import error: {type(exc).__name__}: {exc}"

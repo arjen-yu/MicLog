@@ -40,7 +40,7 @@ class HFTemplateGenerator:
         except Exception as exc:
             raise RuntimeError(
                 "Missing online inference dependencies. Install them first, for example:\n"
-                "  PYTHONNOUSERSITE=1 pip install -U -r requirements_qwen35.txt\n"
+                "  PYTHONNOUSERSITE=1 pip install -U -r requirements.txt\n"
                 f"Original import error: {type(exc).__name__}: {exc}"
             ) from exc
         return {
